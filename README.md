@@ -25,5 +25,10 @@ so adding the proper configurations
 
 $ docker-compose up -d 
 
+then if using intellij run project as usual springboot application
+
+NOTE: for testing ELASTIC or mysql, the implemantation is the same, the difference is that when calling Elastic implementation, in the console will be printed "USING ELASTIC------------------------------"
+
+
 here is the postman collection to test it
 https://api.postman.com/collections/4469107-63a9362d-89bf-4f86-a7be-a1de4808e5de?access_key=PMAT-01HS7498E3TB480Y0NVDFC08K1
