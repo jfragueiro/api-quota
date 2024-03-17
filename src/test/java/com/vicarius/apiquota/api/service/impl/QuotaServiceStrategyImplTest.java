@@ -18,14 +18,6 @@ import static org.mockito.Mockito.*;
 
 class QuotaServiceStrategyImplTest {
 
-    @Test
-    void consumeQuota() {
-    }
-
-    @Test
-    void getUsersQuota() {
-    }
-
     @Mock
     private UserQuotaRepository userQuotaRepository;
 
@@ -38,17 +30,14 @@ class QuotaServiceStrategyImplTest {
 
     @Test
     void testConsumeQuota_SuccessfulConsumption() {
-        // Arrange
         UserQuotaEntity userQuotaEntity = new UserQuotaEntity();
         userQuotaEntity.setBlocked(false);
         userQuotaEntity.setRemainQuota(5);
 
         when(userQuotaRepository.findByUserId(anyString())).thenReturn(Optional.of(userQuotaEntity));
 
-        // Act
         ResponseEntity<String> response = quotaService.consumeQuota("userId");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Quota consumed successfully.", response.getBody());
         assertEquals(4, userQuotaEntity.getRemainQuota());
@@ -57,32 +46,26 @@ class QuotaServiceStrategyImplTest {
 
     @Test
     void testConsumeQuota_ExceededQuota() {
-        // Arrange
         UserQuotaEntity userQuotaEntity = new UserQuotaEntity();
         userQuotaEntity.setBlocked(false);
         userQuotaEntity.setRemainQuota(0);
 
         when(userQuotaRepository.findByUserId(anyString())).thenReturn(Optional.of(userQuotaEntity));
 
-        // Act
         ResponseEntity<String> response = quotaService.consumeQuota("userId");
 
-        // Assert
         assertEquals(HttpStatus.LOCKED, response.getStatusCode());
         assertEquals("User exceeded quota.", response.getBody());
         assertEquals(0, userQuotaEntity.getRemainQuota());
-        verify(userQuotaRepository, never()).save(userQuotaEntity);
+        verify(userQuotaRepository).save(userQuotaEntity);
     }
 
     @Test
     void testConsumeQuota_QuotaNotFound() {
-        // Arrange
         when(userQuotaRepository.findByUserId(anyString())).thenReturn(Optional.empty());
 
-        // Act
         ResponseEntity<String> response = quotaService.consumeQuota("userId");
 
-        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("Quota not found with userID: userId", response.getBody());
         verify(userQuotaRepository, never()).save(any());

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,8 +32,14 @@ public class QuotaServiceStrategyImpl implements QuotaServiceStrategy {
     @Override
     @Transactional
     public ResponseEntity<String> consumeQuota(String userId) {
+        Optional<UserQuotaEntity> userQuotaOptional = userQuotaRepository.findByUserId(userId);
+        if (userQuotaOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Quota not found with userID: " + userId);
+        }
+
+        UserQuotaEntity userQuotaEntity = userQuotaOptional.get();
         try {
-            UserQuotaEntity userQuotaEntity = userQuotaRepository.findByUserId(userId).orElseThrow(() -> new EntityNotFoundException("Quota not found with userID: " + userId));
             if (userQuotaEntity.getBlocked() || userQuotaEntity.getRemainQuota() == 0) {
                 userQuotaEntity.setBlocked(true);
                 userQuotaRepository.save(userQuotaEntity);
