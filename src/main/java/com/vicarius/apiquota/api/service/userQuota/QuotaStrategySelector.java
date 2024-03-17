@@ -1,5 +1,6 @@
 package com.vicarius.apiquota.api.service.userQuota;
 
+import com.vicarius.apiquota.api.service.DataAccessStrategySelector;
 import com.vicarius.apiquota.api.service.userQuota.elastic.QuotaServiceStrategyElasticImpl;
 import com.vicarius.apiquota.api.service.userQuota.mysql.QuotaServiceStrategyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +8,10 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 
+import static com.vicarius.apiquota.common.Util.isDaytime;
+
 @Component
-public class QuotaStrategySelector implements QuotaDataAccessStrategy {
+public class QuotaStrategySelector implements DataAccessStrategySelector<QuotaServiceStrategy> {
     private final QuotaServiceStrategyImpl quotaServiceStrategy;
     private final QuotaServiceStrategyElasticImpl quotaServiceStrategyElastic;
 
@@ -20,11 +23,10 @@ public class QuotaStrategySelector implements QuotaDataAccessStrategy {
 
     @Override
     public QuotaServiceStrategy selectDataAccessStrategy() {
-        LocalTime currentTime = LocalTime.now();
-        if (currentTime.isBefore(LocalTime.of(8, 59)) || currentTime.isAfter(LocalTime.of(17, 1))) {
-            return quotaServiceStrategyElastic; // Use JPA during day time
+        if (isDaytime()) {
+            return quotaServiceStrategy;
         } else {
-            return quotaServiceStrategy; // Use Elastic during night time
+            return quotaServiceStrategyElastic;
         }
     }
 }
