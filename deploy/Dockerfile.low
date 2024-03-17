@@ -1,0 +1,4 @@
+FROM registry.gitlab.com/tenpo/docker-images/docker-openjdk17-distroless-newrelic:ffc3f7df
+WORKDIR /app
+COPY ./build/libs/api-quota-0.0.1-SNAPSHOT.jar /app/app.jar
+CMD ["-Xms200m", "-Xmx200m", "-XX:MaxRAM=200m", "app.jar"]
